@@ -45,7 +45,7 @@ function lock_info()
     global $lang;
     isset($lang->lock) || $lang->load('lock');
 
-    $lang->desc_plugin .= ' This work is forked off the <a href="https://github.com/neko">Lock</a> plugin by <a href="https://community.mybb.com/user-99749.html">Nekomimi</a>.';
+    $lang->lock_desc .= ' This work is forked off the <a href="https://github.com/neko">Lock</a> plugin by <a href="https://community.mybb.com/user-99749.html">Nekomimi</a>.';
 
     return array(
         'name' => 'Lock',
