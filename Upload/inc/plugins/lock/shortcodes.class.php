@@ -52,7 +52,7 @@ class Shortcodes
         $strict = true;
     }
 
-    public function set_tag()
+    public static function set_tag()
     {
         global $mybb;
 
@@ -173,12 +173,12 @@ class Shortcodes
         return $atts;
     }
 
-    function validate_post(&$ph)
+    public static function validate_post(&$ph)
     {
         global $mybb, $lang;
 
         if (
-            $mybb->usergroup['lock_maxcost'] === '' ||
+            !empty($mybb->usergroup['lock_maxcost']) === '' ||
             !function_exists('newpoints_format_points') ||
             $ph->data['uid'] != $mybb->user['uid'] && is_moderator(
                 $ph->data['fid']
@@ -212,7 +212,7 @@ class Shortcodes
         }
     }
 
-    public function get_higher_price_from_message($message, &$higher_price)
+    public static function get_higher_price_from_message($message, &$higher_price)
     {
         self::set_tag();
 
