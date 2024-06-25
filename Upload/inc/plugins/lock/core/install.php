@@ -33,56 +33,56 @@ global $lang, $PL, $db;
 isset($lang->lock) || $lang->load('lock');
 
 // add a new setting group for Lock
-$PL->settings('lock', 'Lock Settings', $lang->lock_desc, array(
-    'key' => array(
+$PL->settings('lock', 'Lock Settings', $lang->lock_desc, list: [
+    'key' => [
         'title' => $lang->setting_lock_key,
         'description' => $lang->setting_lock_key_desc,
         'optionscode' => 'text',
         'value' => substr(str_shuffle(str_repeat('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWYXZ', 20)), 0, 20),
-    ),
-    'purchases_enabled' => array(
+    ],
+    'purchases_enabled' => [
         'title' => $lang->setting_lock_purchases_enabled,
         'description' => $lang->setting_lock_purchases_enabled_desc,
         'optionscode' => 'yesno',
         'value' => 1,
-    ),
-    'allow_user_prices' => array(
+    ],
+    'allow_user_prices' => [
         'title' => $lang->setting_lock_allow_user_prices,
         'description' => $lang->setting_lock_allow_user_prices_desc,
         'optionscode' => 'yesno',
         'value' => 1,
-    ),
-    'default_price' => array(
+    ],
+    'default_price' => [
         'title' => $lang->setting_lock_default_price,
         'description' => $lang->setting_lock_default_price_desc,
         'optionscode' => 'numeric',
         'value' => 0,
-    ),
-    'default_price' => array(
+    ],
+    'default_price' => [
         'title' => $lang->setting_lock_default_price,
         'description' => $lang->setting_lock_default_price_desc,
         'optionscode' => 'numeric',
         'value' => 0,
-    ),
-    'tax' => array(
+    ],
+    'tax' => [
         'title' => $lang->setting_lock_tax,
         'description' => $lang->setting_lock_tax_desc,
         'optionscode' => 'numeric',
         'value' => 10,
-    ),
-    'exempt' => array(
+    ],
+    'exempt' => [
         'title' => $lang->setting_lock_exempt,
         'description' => $lang->setting_lock_exempt_desc,
         'optionscode' => 'groupselect',
         'value' => '3,4',
-    ),
-    'disabled_forums' => array(
+    ],
+    'disabled_forums' => [
         'title' => $lang->setting_lock_disabled_forums,
         'description' => $lang->setting_lock_disabled_forums_desc,
         'optionscode' => 'forumselect',
         'value' => '',
-    ),
-    'type' => array(
+    ],
+    'type' => [
         'title' => $lang->setting_lock_type,
         'description' => $lang->setting_lock_type_desc,
         'optionscode' => 'radio
@@ -90,8 +90,8 @@ hide=Hide
 lock=Lock
 cap=Cap',
         'value' => 'hide',
-    ),
-));
+    ],
+]);
 
 // Lets delete unwanted setting groups
 $delete = null;
@@ -99,7 +99,7 @@ $delete = null;
 $query = $db->simple_select('settinggroups', '*', "name='lock'");
 while ($group = $db->fetch_array($query)) {
     if (!is_array($delete)) {
-        $delete = array();
+        $delete = [];
         continue;
     }
 
@@ -118,7 +118,7 @@ if ($db->field_exists('unlocked', 'posts')) {
 }
 
 // Insert a template group
-$PL->templates('lock', 'Lock', array(
+$PL->templates('lock', 'Lock', [
     'wrapper' => '<div class="hidden-content">
 	<div class="hidden-content-title">
 		<strong>{$params[\'title\']}</strong>
@@ -133,7 +133,7 @@ $PL->templates('lock', 'Lock', array(
 	<input type="hidden" name="info" value="{$info}" />
 	<input type="hidden" name="action" value="purchase" />
 </form>',
-));
+]);
 
 // Add DB fields
 foreach (lock_get_db_fields() as $table => $fields) {

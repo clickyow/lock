@@ -28,7 +28,7 @@
 
 declare(strict_types=1);
 
-function lock_hide($params, $content)
+function lock_hide(array $params, string $content): string
 {
     global $mybb, $post, $templates, $lang, $db;
 
@@ -36,7 +36,7 @@ function lock_hide($params, $content)
 
     // if the tag has no content, do nothing.
     if (!$content) {
-        return false;
+        return '';
     }
 
     // return nothing if the print thread page is viewed
@@ -80,7 +80,7 @@ function lock_hide($params, $content)
                 $cost = $params['cost'];
 
                 // check to see whether the user hasn't already unlocked the content.
-                $allowed = explode(',', $post['unlocked']);
+                $allowed = explode(',', $post['unlocked'] ?? '');
 
                 if (in_array($mybb->user['uid'], $allowed)) {
                     $paid = true;
@@ -124,13 +124,15 @@ function lock_hide($params, $content)
 
             $key = $mybb->settings['lock_key'];
 
-            $pcrypt = new pcrypt(MODE_ECB, 'BLOWFISH', $key);
+            $pcrypt = new \pcrypt();
+
+            $pcrypt = $pcrypt->pcrypt(MODE_ECB, 'BLOWFISH', $key);
 
             // place the info we need, into an array
-            $info = array(
+            $info = [
                 'pid' => $post['pid'],
                 'cost' => $cost
-            );
+            ];
 
             // encode the information as json, for safe transit
             $info = json_encode($info);
@@ -138,7 +140,7 @@ function lock_hide($params, $content)
             // encrypt the json, and encode it as base64; so it can be submitted in a form.
             $info = base64_encode($pcrypt->encrypt($info));
 
-            static $posts_prices = array();
+            static $posts_prices = [];
 
             if (!isset($posts_prices[$post['pid']])) {
                 $posts_prices[$post['pid']] = (int)$cost;

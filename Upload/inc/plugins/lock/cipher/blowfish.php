@@ -54,7 +54,7 @@ class pcrypt_blowfish
      * @access private
      * @var    array
      */
-    public $sbox0 = array(
+    public $sbox0 = [
 
         0xd1310ba6,
         0x98dfb5ac,
@@ -312,9 +312,9 @@ class pcrypt_blowfish
         0xa99f8fa1,
         0x08ba4799,
         0x6e85076a
-    );
+    ];
 
-    public $sbox1 = array(
+    public $sbox1 = [
         0x4b7a70e9,
         0xb5b32944,
         0xdb75092e,
@@ -571,9 +571,9 @@ class pcrypt_blowfish
         0x8fb03d4a,
         0xe6e39f2b,
         0xdb83adf7
-    );
+    ];
 
-    public $sbox2 = array(
+    public $sbox2 = [
         0xe93d5a68,
         0x948140f7,
         0xf64c261c,
@@ -830,9 +830,9 @@ class pcrypt_blowfish
         0x92638212,
         0x670efa8e,
         0x406000e0
-    );
+    ];
 
-    public $sbox3 = array(
+    public $sbox3 = [
         0x3a39ce37,
         0xd3faf5cf,
         0xabc27737,
@@ -1089,7 +1089,7 @@ class pcrypt_blowfish
         0xce77e25b,
         0x578fdfe3,
         0x3ac372e6
-    );
+    ];
 
     /** P-Array consists of 18 32-bit subkeys
      *
@@ -1097,7 +1097,7 @@ class pcrypt_blowfish
      * @access private
      */
 
-    public $parray = array(
+    public $parray = [
         0x243f6a88,
         0x85a308d3,
         0x13198a2e,
@@ -1116,7 +1116,7 @@ class pcrypt_blowfish
         0xb5470917,
         0x9216d5d9,
         0x8979fb1b
-    );
+    ];
 
     /** Block size in bytes
      *
@@ -1137,15 +1137,15 @@ class pcrypt_blowfish
      */
     public function pcrypt_blowfish($key)
     {
-        $this->bctx = array(
+        $this->bctx = [
             'p' => $this->parray,
-            'sb' => array(
+            'sb' => [
                 $this->sbox0,
                 $this->sbox1,
                 $this->sbox2,
                 $this->sbox3
-            )
-        );
+            ]
+        ];
         $this->_init($key);
     }
 

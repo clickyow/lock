@@ -40,16 +40,21 @@ if (THIS_SCRIPT == 'showthread.php') {
 
 defined('PLUGINLIBRARY') or define('PLUGINLIBRARY', MYBB_ROOT . 'inc/plugins/pluginlibrary.php');
 
-function lock_info()
+function lock_info(): array
 {
-    global $lang;
+    global $mybb, $lang;
+
     isset($lang->lock) || $lang->load('lock');
 
-    $lang->lock_desc .= ' This work is forked off the <a href="https://github.com/neko">Lock</a> plugin by <a href="https://community.mybb.com/user-99749.html">Nekomimi</a>.';
+    $lock_desc = '';
 
-    return array(
+    if ($mybb->get_input('module') === 'config-plugins') {
+        $lock_desc = ' This work is forked off the <a href="https://github.com/neko">Lock</a> plugin by <a href="https://community.mybb.com/user-99749.html">Nekomimi</a>.';
+    }
+
+    return [
         'name' => 'Lock',
-        'description' => $lang->lock_desc,
+        'description' => $lang->lock_desc . $lock_desc,
         'website' => 'https://ougc.network',
         'author' => 'Omar G.',
         'authorsite' => 'https://ougc.network',
@@ -57,11 +62,11 @@ function lock_info()
         'versioncode' => 1822,
         'compatibility' => '18*',
         'codename' => 'ougc_lock',
-        'pl' => array(
+        'pl' => [
             'version' => 13,
             'url' => 'https://community.mybb.com/mods.php?action=view&pid=573'
-        )
-    );
+        ]
+    ];
 }
 
 global $plugins;
@@ -78,8 +83,8 @@ if (!defined('IN_ADMINCP')) {
     $plugins->add_hook('parse_quoted_message', 'lock_quoted');
 
     // validate maximum cost
-    $plugins->add_hook('datahandler_post_validate_post', array('Shortcodes', 'validate_post'));
-    $plugins->add_hook('datahandler_post_validate_thread', array('Shortcodes', 'validate_post'));
+    $plugins->add_hook('datahandler_post_validate_post', ['Shortcodes', 'validate_post']);
+    $plugins->add_hook('datahandler_post_validate_thread', ['Shortcodes', 'validate_post']);
 } else {
     $plugins->add_hook('admin_formcontainer_end', 'lock_admin_formcontainer_end');
     $plugins->add_hook('admin_user_groups_edit_commit', 'lock_admin_user_groups_edit_commit');
@@ -93,15 +98,17 @@ if (!class_exists('Shortcodes')) {
     require __DIR__ . '/lock/shortcodes.class.php';
 }
 
-function lock_activate()
+function lock_activate(): bool
 {
     global $db, $PL, $lang;
     lock_deactivate();
 
     require_once __DIR__ . '/lock/core/install.php';
+
+    return true;
 }
 
-function lock_deactivate()
+function lock_deactivate(): bool
 {
     global $PL, $lang;
 
@@ -117,25 +124,29 @@ function lock_deactivate()
         flash_message($lang->sprintf($lang->lock_pluginlibrary, $info['pl']['url'], $info['pl']['version']), 'error');
         admin_redirect('index.php?module=config-plugins');
     }
+
+    return true;
 }
 
-function lock_uninstall()
+function lock_uninstall(): bool
 {
     global $db, $PL;
 
     require_once __DIR__ . '/lock/core/uninstall.php';
+
+    return true;
 }
 
-function lock_is_installed()
+function lock_is_installed(): bool
 {
     global $db;
 
-    return $db->field_exists('unlocked', 'posts');
+    return (bool)$db->field_exists('unlocked', 'posts');
 }
 
-function lock_highlight_start($message)
+function lock_highlight_start(string $message): string
 {
-    global $mybb, $replacement, $parser;
+    global $mybb, $replacement;
 
     if (!empty($mybb->input['highlight'])) {
         $replacement = substr(
@@ -160,7 +171,7 @@ function lock_highlight_start($message)
     return $message;
 }
 
-function lock_highlight_end($message)
+function lock_highlight_end(string $message): string
 {
     global $mybb, $replacement;
 
@@ -181,16 +192,18 @@ function lock_highlight_end($message)
     return Shortcodes::parse($message);
 }
 
-function lock_purchase()
+function lock_purchase(): bool
 {
     global $_POST, $mybb, $db;
 
     require_once __DIR__ . '/lock/core/purchase.php';
+
+    return true;
 }
 
 require_once __DIR__ . '/lock/core/shortcode.php';
 
-function lock_quoted(&$quoted_post)
+function lock_quoted(array &$quoted_post): array
 {
     Shortcodes::set_tag();
     $quoted_post['message'] = preg_replace(
@@ -198,10 +211,12 @@ function lock_quoted(&$quoted_post)
         '',
         $quoted_post['message']
     );
+
+    return $quoted_post;
 }
 
 // Hook: admin_formcontainer_end
-function lock_admin_formcontainer_end()
+function lock_admin_formcontainer_end(): bool
 {
     global $run_module, $form_container, $lang;
 
@@ -210,12 +225,12 @@ function lock_admin_formcontainer_end()
 
         isset($lang->lock) || $lang->load('lock');
 
-        $perms = array();
+        $perms = [];
 
         $db_fields = lock_get_db_fields();
 
         foreach ($db_fields['usergroups'] as $name => $definition) {
-            $perms[] = "<br />{$lang->lock_permission_maxcost}<br /><small>{$lang->lock_permission_maxcost_desc}</small><br />{$form->generate_text_box($name, $mybb->get_input($name, MyBB::INPUT_STRING), array('id' => $name, 'class' => 'field50'))}";
+            $perms[] = "<br />{$lang->lock_permission_maxcost}<br /><small>{$lang->lock_permission_maxcost_desc}</small><br />{$form->generate_text_box($name, $mybb->get_input($name, MyBB::INPUT_STRING), ['id' => $name, 'class' => 'field50'])}";
         }
 
         $form_container->output_row(
@@ -224,10 +239,12 @@ function lock_admin_formcontainer_end()
             '<div class="group_settings_bit">' . implode('</div><div class="group_settings_bit">', $perms) . '</div>'
         );
     }
+
+    return true;
 }
 
 // Hook: admin_user_groups_edit_commit
-function lock_admin_user_groups_edit_commit()
+function lock_admin_user_groups_edit_commit(): bool
 {
     global $updated_group, $mybb;
 
@@ -236,27 +253,23 @@ function lock_admin_user_groups_edit_commit()
     foreach ($db_fields['usergroups'] as $name => $definition) {
         $updated_group[$name] = $mybb->get_input($name, MyBB::INPUT_STRING);
     }
+
+    return true;
 }
 
-function lock_get_db_fields()
+function lock_get_db_fields(): array
 {
     global $db;
 
     // Create DB table
     switch ($db->type) {
         case 'pgsql':
-            $fields = array(
-                'usergroups' => array(
-                    'lock_maxcost' => "VARCHAR(5) NOT NULL DEFAULT ''",
-                )
-            );
-            break;
         default:
-            $fields = array(
-                'usergroups' => array(
+            $fields = [
+                'usergroups' => [
                     'lock_maxcost' => "VARCHAR(5) NOT NULL DEFAULT ''",
-                )
-            );
+                ]
+            ];
             break;
     }
 

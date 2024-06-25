@@ -48,7 +48,7 @@ class Shortcodes
 
     public function _construct()
     {
-        $shortcodes = array();
+        $shortcodes = [];
         $strict = true;
     }
 
@@ -115,7 +115,7 @@ class Shortcodes
             . '(\\]?)';                          // 6: Optional second closing brocket for escaping shortcodes: [[tag]]
     }
 
-    public static function parse($content)
+    public static function parse(string $content): string
     {
         if (false === strpos($content, '[')) {
             return $content;
@@ -126,10 +126,11 @@ class Shortcodes
         }
 
         $pattern = self::shortcode_regex();
-        return preg_replace_callback("/$pattern/s", 'self::run_shortcode', $content);
+
+        return preg_replace_callback("/$pattern/s", self::run_shortcode(...), $content);
     }
 
-    private static function run_shortcode($m)
+    private static function run_shortcode(array $m): string
     {
         // allow [[foo]] syntax for escaping a tag
         if ($m[1] == '[' && $m[6] == ']') {
@@ -148,9 +149,9 @@ class Shortcodes
         }
     }
 
-    private static function fetch_attributes($text)
+    private static function fetch_attributes(string $text): array
     {
-        $atts = array();
+        $atts = [];
         $pattern = '/(\w+)\s*=\s*"([^"]*)"(?:\s|$)|(\w+)\s*=\s*\'([^\']*)\'(?:\s|$)|(\w+)\s*=\s*([^\s\'"]+)(?:\s|$)|"([^"]*)"(?:\s|$)|(\S+)(?:\s|$)/';
         $text = preg_replace('/[\x{00a0}\x{200b}]+/u', ' ', $text);
         if (preg_match_all($pattern, $text, $match, PREG_SET_ORDER)) {
@@ -168,12 +169,13 @@ class Shortcodes
                 }
             }
         } else {
-            $atts = ltrim($text);
+            $atts[] = ltrim($text);
         }
+
         return $atts;
     }
 
-    public static function validate_post(&$ph)
+    public static function validate_post(PostDataHandler &$ph): PostDataHandler
     {
         global $mybb, $lang;
 
@@ -184,7 +186,7 @@ class Shortcodes
                 $ph->data['fid']
             ) // but moderators could bypass this in others's posts? ...
         ) {
-            return;
+            return $ph;
         }
 
         self::set_tag();
@@ -196,8 +198,10 @@ class Shortcodes
             !is_array(self::$shortcodes) ||
             my_strpos($message, '[' . self::$tag) === false
         ) {
-            return;
+            return $ph;
         }
+
+        $price = 0;
 
         Shortcodes::get_higher_price_from_message($message, $price);
 
@@ -210,9 +214,11 @@ class Shortcodes
 
             $ph->set_error($lang->sprintf($lang->lock_permission_maxcost, strip_tags($cost)));
         }
+
+        return $ph;
     }
 
-    public static function get_higher_price_from_message($message, &$higher_price)
+    public static function get_higher_price_from_message(string $message, int &$higher_price): int
     {
         self::set_tag();
 

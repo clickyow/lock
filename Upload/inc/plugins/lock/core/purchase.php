@@ -44,7 +44,9 @@ $key = $mybb->settings['lock_key'];
 
 // include the pcrypt class, so we can decrypt the sent info.
 require_once __DIR__ . '/../pcrypt.php';
-$pcrypt = new pcrypt(MODE_ECB, 'BLOWFISH', $key);
+$pcrypt = new \pcrypt();
+
+$pcrypt = $pcrypt->pcrypt(MODE_ECB, 'BLOWFISH', $key);
 
 // convert the sent info back into json data
 $json = $pcrypt->decrypt(base64_decode($_POST['info']));
@@ -60,6 +62,8 @@ if ($info = json_decode($json)) {
 
         $post = get_post($info->pid);
 
+        $higher_price = 0;
+
         Shortcodes::get_higher_price_from_message($post['message'], $higher_price);
 
         if ((bool)$mybb->settings['lock_allow_user_prices']) {
@@ -72,7 +76,7 @@ if ($info = json_decode($json)) {
         $query = $db->simple_select('posts', 'uid,unlocked', "pid='{$info->pid}'");
         $post = $db->fetch_array($query);
 
-        $allowed = explode(',', $post['unlocked']);
+        $allowed = explode(',', $post['unlocked'] ?? '');
 
         if (!is_array($allowed)) {
             $allowed = array();

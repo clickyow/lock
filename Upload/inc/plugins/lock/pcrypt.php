@@ -39,8 +39,8 @@ declare(strict_types=1);
  * @const MODE_ECB ecb mode
  * @const MODE_CBC cbc mode
  */
-define('MODE_ECB', 0);
-define('MODE_CBC', 1);
+const MODE_ECB = 0;
+const MODE_CBC = 1;
 
 /**
  * An abstract layer class to encrypt data.
@@ -76,6 +76,8 @@ class pcrypt
      */
     public $iv = 'z4c8e7gh';
 
+    public $cipher = null;
+
     /** Methods */
 
     /** Constructor of the class.
@@ -91,7 +93,7 @@ class pcrypt
      * @return void
      */
 
-    public function pcrypt($blockmode = MODE_ECB, $cipher = 'BLOWFISH', $key = null)
+    public function pcrypt(int $blockmode = MODE_ECB, string $cipher = 'BLOWFISH', string $key = ''): \pcrypt
     {
         // Include cipher_class file
         $cipher = strtolower($cipher);
@@ -105,12 +107,17 @@ class pcrypt
             $this->error('Class pcrypt_' . $cipher . " doesn't exists");
         }
 
-        $class = 'pcrypt_' . $cipher;
-        $this->cipher = new $class($key);
+        switch ($cipher) {
+            case 'blowfish':
+                $this->cipher = new pcrypt_blowfish($key);
+                break;
+        }
 
         // Initialize Vars
         $this->blockmode = $blockmode;
         $this->key = $key;
+
+        return $this;
     }
 
     /** Crypt data using the selected algorithm
@@ -125,7 +132,7 @@ class pcrypt
      * @param string $plain the plain text to be encrypted
      * @return string $cipher the plain text encrypted
      */
-    public function encrypt($plain)
+    public function encrypt(string $plain): string
     {
         if (empty($plain)) {
             $this->error('Empty Plain Text');
@@ -157,7 +164,7 @@ class pcrypt
      * @param string $cipher the crypted data to be decrypted
      * @return string $plain  the cipher text decrypted
      */
-    public function decrypt($cipher)
+    public function decrypt(string $cipher): string
     {
         if (empty($cipher)) {
             $this->error('Invalid Cipher Text');
@@ -188,7 +195,7 @@ class pcrypt
      * @param string $plain the plain text to be encrypted
      * @return string $cipher the plain text encrypted
      */
-    public function _ecb_encrypt($plain)
+    public function _ecb_encrypt(string $plain): string
     {
         $blocksize = $this->cipher->blocksize;
         $plainsize = strlen($plain);
@@ -202,8 +209,14 @@ class pcrypt
                 $block = str_pad($block, $blocksize, "\0", STR_PAD_LEFT);
             }
 
+            if ($this->cipher === null) {
+                //$this->pcrypt();
+            }
+
             $cipher .= $this->cipher->_encrypt($block);
         }
+        //ar_dump($plain, $cipher);
+        //exit;
 
         return $cipher;
     }
@@ -214,7 +227,7 @@ class pcrypt
      * @param string $cipher the cipher text
      * @return string $plain  the cipher text decrypted
      */
-    public function _ecb_decrypt($cipher)
+    public function _ecb_decrypt($cipher): string
     {
         $blocksize = $this->cipher->blocksize;
         $ciphersize = strlen($cipher);
@@ -243,7 +256,7 @@ class pcrypt
      * @param string $plain the plain text to be decrypted
      * @return string $cipher the plain text encrypted
      */
-    public function _cbc_encrypt($plain)
+    public function _cbc_encrypt(string $plain): string
     {
         $blocksize = $this->cipher->blocksize;
         $plainsize = strlen($plain);
@@ -271,7 +284,7 @@ class pcrypt
      * @param string $cipher the cipher text
      * @return string $plain  the cipher text decrypted
      */
-    public function _cbc_decrypt($cipher)
+    public function _cbc_decrypt(string $cipher): string
     {
         // get the block size of the cipher
         $blocksize = $this->cipher->blocksize;
@@ -305,7 +318,7 @@ class pcrypt
      * @param string $message erro message
      * @return bool true
      */
-    public function error($message)
+    public function error(string $message): int
     {
         echo 'Error: ' . $message . '<br>';
 
