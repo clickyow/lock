@@ -26,6 +26,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
 
+declare(strict_types=1);
+
 global $lang, $PL, $db;
 
 isset($lang->lock) || $lang->load('lock');
@@ -36,7 +38,7 @@ $PL->settings('lock', 'Lock Settings', $lang->lock_desc, array(
         'title' => $lang->setting_lock_key,
         'description' => $lang->setting_lock_key_desc,
         'optionscode' => 'text',
-        'value' => substr(str_shuffle(str_repeat("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWYXZ", 20)), 0, 20),
+        'value' => substr(str_shuffle(str_repeat('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWYXZ', 20)), 0, 20),
     ),
     'purchases_enabled' => array(
         'title' => $lang->setting_lock_purchases_enabled,
@@ -94,7 +96,7 @@ cap=Cap',
 // Lets delete unwanted setting groups
 $delete = null;
 
-$query = $db->simple_select("settinggroups", "*", "name='lock'");
+$query = $db->simple_select('settinggroups', '*', "name='lock'");
 while ($group = $db->fetch_array($query)) {
     if (!is_array($delete)) {
         $delete = array();
@@ -106,7 +108,7 @@ while ($group = $db->fetch_array($query)) {
 
 $delete = implode("','", $delete);
 
-$db->delete_query("settinggroups", "gid IN ('{$delete}')");
+$db->delete_query('settinggroups', "gid IN ('{$delete}')");
 
 // add a new colum to the posts table.
 if ($db->field_exists('unlocked', 'posts')) {

@@ -26,6 +26,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
 
+declare(strict_types=1);
+
 global $mybb, $db;
 
 // if the action is not purchase, we don't need to continue.
@@ -42,7 +44,7 @@ $key = $mybb->settings['lock_key'];
 
 // include the pcrypt class, so we can decrypt the sent info.
 require_once __DIR__ . '/../pcrypt.php';
-$pcrypt = new pcrypt(MODE_ECB, "BLOWFISH", $key);
+$pcrypt = new pcrypt(MODE_ECB, 'BLOWFISH', $key);
 
 // convert the sent info back into json data
 $json = $pcrypt->decrypt(base64_decode($_POST['info']));
@@ -53,7 +55,7 @@ if ($info = json_decode($json)) {
     if (is_object($info)) {
         // if the cost and post id are not numbers, return an error.
         if (!is_numeric($info->cost) || !is_numeric($info->pid)) {
-            error("Something went wrong: NaN");
+            error('Something went wrong: NaN');
         }
 
         $post = get_post($info->pid);
@@ -107,10 +109,10 @@ if ($info = json_decode($json)) {
                 $allowed = implode(',', $allowed);
 
                 $unlocked = array(
-                    "unlocked" => $allowed,
+                    'unlocked' => $allowed,
                 );
 
-                $db->update_query("posts", $unlocked, "pid='{$info->pid}'");
+                $db->update_query('posts', $unlocked, "pid='{$info->pid}'");
             }
         }
 
@@ -121,7 +123,7 @@ if ($info = json_decode($json)) {
             $post = $db->fetch_array($query);
             $url = $mybb->settings['bburl'] . '/' . get_post_link($info->pid) . '#pid' . $info->pid;
 
-            header("Location: " . $url);
+            header('Location: ' . $url);
             exit();
         }
     }

@@ -26,6 +26,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
 
+declare(strict_types=1);
+
 // stop direct access to the file.
 if (!defined('IN_MYBB')) {
     die('no');
@@ -150,7 +152,7 @@ class Shortcodes
     {
         $atts = array();
         $pattern = '/(\w+)\s*=\s*"([^"]*)"(?:\s|$)|(\w+)\s*=\s*\'([^\']*)\'(?:\s|$)|(\w+)\s*=\s*([^\s\'"]+)(?:\s|$)|"([^"]*)"(?:\s|$)|(\S+)(?:\s|$)/';
-        $text = preg_replace("/[\x{00a0}\x{200b}]+/u", " ", $text);
+        $text = preg_replace('/[\x{00a0}\x{200b}]+/u', ' ', $text);
         if (preg_match_all($pattern, $text, $match, PREG_SET_ORDER)) {
             foreach ($match as $m) {
                 if (!empty($m[1])) {
@@ -192,14 +194,16 @@ class Shortcodes
         if (
             empty(self::$shortcodes) ||
             !is_array(self::$shortcodes) ||
-            my_strpos($message, "[" . self::$tag) === false
+            my_strpos($message, '[' . self::$tag) === false
         ) {
             return;
         }
 
         Shortcodes::get_higher_price_from_message($message, $price);
 
-        if ($price > (int)$mybb->usergroup['lock_maxcost'] && function_exists('newpoints_format_points')) {
+        if (!empty($mybb->usergroup['lock_maxcost']) && $price > (int)$mybb->usergroup['lock_maxcost'] && function_exists(
+                'newpoints_format_points'
+            )) {
             isset($lang->lock) || $lang->load('lock');
 
             $cost = newpoints_format_points((int)$mybb->usergroup['lock_maxcost']);
@@ -221,7 +225,7 @@ class Shortcodes
         foreach ($matches as $match) {
             if (
                 empty($match[0]) ||
-                my_strpos($match[0], "[" . self::$tag . "=") === false ||
+                my_strpos($match[0], '[' . self::$tag . '=') === false ||
                 !($price = (int)str_replace('=', '', $match[3]))
             ) {
                 continue;

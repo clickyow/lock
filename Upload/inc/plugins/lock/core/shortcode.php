@@ -26,6 +26,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
 
+declare(strict_types=1);
+
 function lock_hide($params, $content)
 {
     global $mybb, $post, $templates, $lang, $db;
@@ -122,7 +124,7 @@ function lock_hide($params, $content)
 
             $key = $mybb->settings['lock_key'];
 
-            $pcrypt = new pcrypt(MODE_ECB, "BLOWFISH", $key);
+            $pcrypt = new pcrypt(MODE_ECB, 'BLOWFISH', $key);
 
             // place the info we need, into an array
             $info = array(
@@ -192,12 +194,12 @@ global $mybb;
 
 switch ((string)$mybb->settings['lock_type']) {
     case 'lock':
-        Shortcodes::add("lock", "lock_hide");
+        Shortcodes::add('lock', 'lock_hide');
         break;
     case 'cap':
-        Shortcodes::add("cap", "lock_hide");
+        Shortcodes::add('cap', 'lock_hide');
         break;
     default:
-        Shortcodes::add("hide", "lock_hide");
+        Shortcodes::add('hide', 'lock_hide');
         break;
 }

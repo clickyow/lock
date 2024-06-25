@@ -26,6 +26,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
 
+declare(strict_types=1);
+
 if (THIS_SCRIPT == 'showthread.php') {
     global $templatelist;
 
@@ -35,7 +37,7 @@ if (THIS_SCRIPT == 'showthread.php') {
 
     $templatelist .= ',lock_wrapper,lock_form,';
 }
-// PLUGINLIBRARY
+
 defined('PLUGINLIBRARY') or define('PLUGINLIBRARY', MYBB_ROOT . 'inc/plugins/pluginlibrary.php');
 
 function lock_info()
@@ -137,7 +139,7 @@ function lock_highlight_start($message)
 
     if (!empty($mybb->input['highlight'])) {
         $replacement = substr(
-            str_shuffle(str_repeat("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWYXZ", 20)),
+            str_shuffle(str_repeat('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWYXZ', 20)),
             0,
             20
         );
@@ -192,7 +194,7 @@ function lock_quoted(&$quoted_post)
 {
     Shortcodes::set_tag();
     $quoted_post['message'] = preg_replace(
-        "#\[" . Shortcodes::$tag . "(.*)\[/" . Shortcodes::$tag . "\]#is",
+        '#\[' . Shortcodes::$tag . '(.*)\[/' . Shortcodes::$tag . '\]#is',
         '',
         $quoted_post['message']
     );

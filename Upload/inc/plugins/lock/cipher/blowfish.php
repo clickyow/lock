@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 // +----------------------------------------------------------------------+
 // | Perfect Scripts                                         blowfish.php |
 // | Brazilian Organization                                               |
@@ -52,7 +54,7 @@ class pcrypt_blowfish
      * @access private
      * @var    array
      */
-    var $sbox0 = array(
+    public $sbox0 = array(
 
         0xd1310ba6,
         0x98dfb5ac,
@@ -312,7 +314,7 @@ class pcrypt_blowfish
         0x6e85076a
     );
 
-    var $sbox1 = array(
+    public $sbox1 = array(
         0x4b7a70e9,
         0xb5b32944,
         0xdb75092e,
@@ -571,7 +573,7 @@ class pcrypt_blowfish
         0xdb83adf7
     );
 
-    var $sbox2 = array(
+    public $sbox2 = array(
         0xe93d5a68,
         0x948140f7,
         0xf64c261c,
@@ -830,7 +832,7 @@ class pcrypt_blowfish
         0x406000e0
     );
 
-    var $sbox3 = array(
+    public $sbox3 = array(
         0x3a39ce37,
         0xd3faf5cf,
         0xabc27737,
@@ -1095,7 +1097,7 @@ class pcrypt_blowfish
      * @access private
      */
 
-    var $parray = array(
+    public $parray = array(
         0x243f6a88,
         0x85a308d3,
         0x13198a2e,
@@ -1121,7 +1123,7 @@ class pcrypt_blowfish
      * @access public
      * @var    int $blocksize
      */
-    var $blocksize = 8; //bytes
+    public $blocksize = 8; //bytes
 
     /** Methods */
 
@@ -1133,7 +1135,7 @@ class pcrypt_blowfish
      * @param string $key the key used to encrypt and decrypt
      * @return void
      */
-    function pcrypt_blowfish($key)
+    public function pcrypt_blowfish($key)
     {
         $this->bctx = array(
             'p' => $this->parray,
@@ -1155,7 +1157,7 @@ class pcrypt_blowfish
      * @param int $Xr right uInt32 part of the block
      * @return void
      */
-    function _blowfish_crypt(&$Xl, &$Xr)
+    public function _blowfish_crypt(&$Xl, &$Xr)
     {
         for ($i = 0; $i < 16; $i++) {
             $Xl = $Xl ^ $this->bctx['p'][$i];
@@ -1183,7 +1185,7 @@ class pcrypt_blowfish
      * @param int $Xr right uInt32 part of the block
      * @return void
      */
-    function _blowfish_decrypt(&$Xl, &$Xr)
+    public function _blowfish_decrypt(&$Xl, &$Xr)
     {
         for ($i = 17; $i >= 2; $i--) {
             $Xl = $Xl ^ $this->bctx['p'][$i];
@@ -1212,7 +1214,7 @@ class pcrypt_blowfish
      * @param int $x the block
      * @return int $y the new block
      */
-    function _F($x)
+    public function _F($x)
     {
         $d = $x & 0xff;
         $x = $x >> 8;
@@ -1234,10 +1236,10 @@ class pcrypt_blowfish
      * @param string $key the key used to encrypt and decrypt
      * @return void
      */
-    function _init($key)
+    public function _init($key)
     {
         // unpack binary string in unsigned chars
-        $key = array_values(unpack("C*", $key));
+        $key = array_values(unpack('C*', $key));
         $keyl = count($key);
 
         $j = 0;
@@ -1280,7 +1282,7 @@ class pcrypt_blowfish
      * @param string $block the block to be encrypted
      * @return string the block encrypted
      */
-    function _encrypt($block)
+    public function _encrypt($block)
     {
         // unpack the block in unsigned long ints (uInt32)
         $data = array_values(unpack('N*', $block));
@@ -1299,7 +1301,7 @@ class pcrypt_blowfish
      * @param string $block the encrypted block to be decrypted
      * @return string the plain text block
      */
-    function _decrypt($block)
+    public function _decrypt($block)
     {
         // unpack the block in unsigned long ints (uInt32)
         $data = array_values(unpack('N*', $block));
