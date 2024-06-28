@@ -2,7 +2,7 @@
 
 /***************************************************************************
  *
- *    Lock plugin (/inc/plugins/lock/core/uninstall.php)
+ *    Lock plugin (/inc/languages/espanol/lock.lang.php)
  *    Author: Omar Gonzalez
  *    Copyright: © 2020 Omar Gonzalez
  *
@@ -26,24 +26,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
 
-declare(strict_types=1);
+$l['lock'] = 'Lock';
+$l['lock_desc'] = 'Lock es un complemento para ocultar contenido que se muestra cuando el usuario responde al hilo o paga puntos de Newpoints.';
 
-global $PL, $db;
+$l['lock_nopermission_reply'] = 'Para ver el contenido oculto necesitas responder a este tema.';
+$l['lock_nopermission_guest'] = "Para ver el contenido oculto necesitas <a href=\"{1}/member.php?action=register\">registrarte</a> o <a href=\"{1}/member.php?action=login\">iniciar sesión</a>.";
+$l['lock_title'] = 'Contenido Oculto';
+$l['lock_purchase'] = 'Paga {1} Puntos.';
+$l['lock_purchase_yougot'] = ' Tu tienes {1} puntos.';
+$l['lock_purchase_cost'] = '[{1} Puntos]';
+$l['lock_purchase_confirm'] = 'Estas seguro de querer pagar {1} para ver el contenido oculto?';
+$l['lock_purchase_desc'] = 'Para ver el contenido oculto necesitas pagar los puntos necesarios.';
 
-// Delete settings
-$PL->settings_delete('lock');
-
-// remove the unlocked column from the posts table.
-!$db->field_exists('unlocked', 'posts') or $db->drop_column('posts', 'unlocked');
-
-// Delete template group
-$PL->templates_delete('lock');
-
-// Remove DB fields
-foreach (lock_get_db_fields() as $table => $fields) {
-    foreach ($fields as $name => $definition) {
-        if ($db->field_exists($name, $table)) {
-            $db->drop_column($table, $name);
-        }
-    }
-}
+$l['lock_permission_maxcost'] = 'No tienes permiso para ocultar contenido por mas de {1} puntos.';

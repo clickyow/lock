@@ -1,117 +1,147 @@
 <?php
 
+/***************************************************************************
+ *
+ *    Lock plugin (/inc/plugins/lock/core/install.php)
+ *    Author: Omar Gonzalez
+ *    Copyright: © 2020 Omar Gonzalez
+ *
+ *    Website: https://ougc.network
+ *
+ *    Lock is a MyBB plugin for hiding content and selling it for your Newpoints currency.
+ *
+ ***************************************************************************
+ ****************************************************************************
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ ****************************************************************************/
+
+declare(strict_types=1);
+
+global $lang, $PL, $db;
+
+isset($lang->lock) || $lang->load('lock');
+
 // add a new setting group for Lock
-$new_setting_group = array(
-  "name" => "lock",
-  "title" => "Lock Settings",
-  "description" => "Lock Settings Group",
-  "disporder" => 1,
-  "isdefault" => 0
-);
+$PL->settings('lock', 'Lock Settings', $lang->lock_desc, list: [
+    'key' => [
+        'title' => $lang->setting_lock_key,
+        'description' => $lang->setting_lock_key_desc,
+        'optionscode' => 'text',
+        'value' => substr(str_shuffle(str_repeat('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWYXZ', 20)), 0, 20),
+    ],
+    'purchases_enabled' => [
+        'title' => $lang->setting_lock_purchases_enabled,
+        'description' => $lang->setting_lock_purchases_enabled_desc,
+        'optionscode' => 'yesno',
+        'value' => 1,
+    ],
+    'allow_user_prices' => [
+        'title' => $lang->setting_lock_allow_user_prices,
+        'description' => $lang->setting_lock_allow_user_prices_desc,
+        'optionscode' => 'yesno',
+        'value' => 1,
+    ],
+    'default_price' => [
+        'title' => $lang->setting_lock_default_price,
+        'description' => $lang->setting_lock_default_price_desc,
+        'optionscode' => 'numeric',
+        'value' => 0,
+    ],
+    'default_price' => [
+        'title' => $lang->setting_lock_default_price,
+        'description' => $lang->setting_lock_default_price_desc,
+        'optionscode' => 'numeric',
+        'value' => 0,
+    ],
+    'tax' => [
+        'title' => $lang->setting_lock_tax,
+        'description' => $lang->setting_lock_tax_desc,
+        'optionscode' => 'numeric',
+        'value' => 10,
+    ],
+    'exempt' => [
+        'title' => $lang->setting_lock_exempt,
+        'description' => $lang->setting_lock_exempt_desc,
+        'optionscode' => 'groupselect',
+        'value' => '3,4',
+    ],
+    'disabled_forums' => [
+        'title' => $lang->setting_lock_disabled_forums,
+        'description' => $lang->setting_lock_disabled_forums_desc,
+        'optionscode' => 'forumselect',
+        'value' => '',
+    ],
+    'type' => [
+        'title' => $lang->setting_lock_type,
+        'description' => $lang->setting_lock_type_desc,
+        'optionscode' => 'radio
+hide=Hide
+lock=Lock
+cap=Cap',
+        'value' => 'hide',
+    ],
+]);
 
-$gid = $db->insert_query("settinggroups", $new_setting_group);
+// Lets delete unwanted setting groups
+$delete = null;
 
-$settings[] = array(
-  "name" => "lock_key",
-  "title" => "Key",
-  "description" => "A password to keep spooky people from editing values they shouldn\'t be.",
-  "optionscode" => "text",
-  "disporder" => 1,
-  "value" => substr(str_shuffle(str_repeat("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWYXZ", 20)), 0, 20),
-  "gid" => $gid
-);
+$query = $db->simple_select('settinggroups', '*', "name='lock'");
+while ($group = $db->fetch_array($query)) {
+    if (!is_array($delete)) {
+        $delete = [];
+        continue;
+    }
 
-$settings[] = array(
-  "name" => "lock_purchases_enabled",
-  "title" => "Enable Newpoints purchases.",
-  "description" => "Allow users to sell locked content for newpoints credits.",
-  "optionscode" => "yesno",
-  "disporder" => 2,
-  "value" => 1,
-  "gid" => $gid
-);
-
-$settings[] = array(
-  "name" => "lock_allow_user_prices",
-  "title" => "Allow user prices.",
-  "description" => "Do you want to let users set the price of their content?",
-  "optionscode" => "yesno",
-  "disporder" => 2,
-  "value" => 1,
-  "gid" => $gid
-);
-
-$settings[] = array(
-  "name" => "lock_default_price",
-  "title" => "Default price.",
-  "description" => "The default price for hidden content. Set this to zero if you want hide tags to fall back to the \"Reply to view\" mode.",
-  "optionscode" => "text",
-  "disporder" => 3,
-  "value" => '0',
-  "gid" => $gid
-);
-
-$settings[] = array(
-  "name" => "lock_tax",
-  "title" => "Tax",
-  "description" => "Tax a percentage of the points every user spends on content (up to 100%).",
-  "optionscode" => "text",
-  "disporder" => 3,
-  "value" => '10',
-  "gid" => $gid
-);
-
-$settings[] = array(
-  "name" => "lock_exempt",
-  "title" => "Excempt usergroups.",
-  "description" => "Enter a comma seperated list of usergroups that can bypass the hide tags.",
-  "optionscode" => "text",
-  "disporder" => 3,
-  "value" => '3,4',
-  "gid" => $gid
-);
-
-$settings[] = array(
-  "name" => "lock_disabled_forums",
-  "title" => "Disabled forums.",
-  "description" => "Enter a comma seperated list of forum IDs that you do not want the \"pay to view\" functionality to work in.",
-  "optionscode" => "text",
-  "disporder" => 3,
-  "value" => '',
-  "gid" => $gid
-);
-
-// add the settings into the database.
-foreach($settings as $data)
-{
-    $db->insert_query("settings", $data);
+    $delete[] = $group['gid'];
 }
+
+$delete = implode("','", $delete);
+
+$db->delete_query('settinggroups', "gid IN ('{$delete}')");
 
 // add a new colum to the posts table.
-$db->write_query("ALTER TABLE `".TABLE_PREFIX."posts` ADD `unlocked` TEXT AFTER `visible`");
-
-// add a template for the hide tag
-$templates['lock_wrapper'] = '<div class="hidden-content">
-  <div class="hidden-content-title"><strong>{$params[\'title\']}</strong></div>
-  <div class="hidden-content-body">
-    {$return}
-  </div>
-</div>';
-
-// insert the template into the database
-foreach($templates as $title => $template)
-{
-  $new_template = array(
-    'title' => $db->escape_string($title),
-    'template' => $db->escape_string($template),
-    'sid' => '-1',
-    'version' => '1800',
-    'dateline' => TIME_NOW
-  );
-
-  $db->insert_query('templates', $new_template);
+if ($db->field_exists('unlocked', 'posts')) {
+    $db->modify_column('posts', 'unlocked', 'TEXT');
+} else {
+    $db->add_column('posts', 'unlocked', 'TEXT');
 }
 
-// rebuild settings
-rebuild_settings();
-?>
+// Insert a template group
+$PL->templates('lock', 'Lock', [
+    'wrapper' => '<div class="hidden-content">
+	<div class="hidden-content-title">
+		<strong>{$params[\'title\']}</strong>
+	</div>
+	<div class="hidden-content-body">
+		{$return}
+	</div>
+</div>',
+    'form' => '<form method="post">
+	{$lang->lock_purchase_desc}
+	<input type="submit" class="button" value="{$lock_purchase}" onclick="javascript: return confirm(\'{$lang_confirm}\');" />
+	<input type="hidden" name="info" value="{$info}" />
+	<input type="hidden" name="action" value="purchase" />
+</form>',
+]);
+
+// Add DB fields
+foreach (lock_get_db_fields() as $table => $fields) {
+    foreach ($fields as $name => $definition) {
+        if (!$db->field_exists($name, $table)) {
+            $db->add_column($table, $name, $definition);
+        } else {
+            $db->modify_column($table, $name, $definition);
+        }
+    }
+}

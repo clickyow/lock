@@ -2,7 +2,7 @@
 
 /***************************************************************************
  *
- *    Lock plugin (/inc/plugins/lock/core/uninstall.php)
+ *    Lock plugin (/inc/languages/english/lock.lang.php)
  *    Author: Omar Gonzalez
  *    Copyright: © 2020 Omar Gonzalez
  *
@@ -26,24 +26,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
 
-declare(strict_types=1);
+$l['lock'] = 'Lock';
+$l['lock_desc'] = 'Lock is a MyBB plugin for hiding content and selling it for your Newpoints currency.';
 
-global $PL, $db;
+$l['lock_nopermission_reply'] = 'You must reply to this thread to view this content.';
+$l['lock_nopermission_guest'] = "You must <a href=\"{1}/member.php?action=register\">register</a> or <a href=\"{1}/member.php?action=login\">login</a> to view this content.";
+$l['lock_title'] = 'Hidden Content';
+$l['lock_purchase'] = 'Pay {1} Points.';
+$l['lock_purchase_yougot'] = ' You have {1} points.';
+$l['lock_purchase_cost'] = '[{1} Points]';
+$l['lock_purchase_confirm'] = 'Are you sure you want to pay {1} to view the content?';
+$l['lock_purchase_desc'] = 'Please pay the required points to unlock the content.';
 
-// Delete settings
-$PL->settings_delete('lock');
-
-// remove the unlocked column from the posts table.
-!$db->field_exists('unlocked', 'posts') or $db->drop_column('posts', 'unlocked');
-
-// Delete template group
-$PL->templates_delete('lock');
-
-// Remove DB fields
-foreach (lock_get_db_fields() as $table => $fields) {
-    foreach ($fields as $name => $definition) {
-        if ($db->field_exists($name, $table)) {
-            $db->drop_column($table, $name);
-        }
-    }
-}
+$l['lock_permission_maxcost'] = 'You are not allowed to charge more than {1} for your hidden content.';
