@@ -216,7 +216,7 @@ function lock_quoted(array &$quoted_post): array
 }
 
 // Hook: admin_formcontainer_end
-function lock_admin_formcontainer_end(): bool
+function lock_admin_formcontainer_end(array &$args): array
 {
     global $run_module, $form_container, $lang;
 
@@ -240,7 +240,7 @@ function lock_admin_formcontainer_end(): bool
         );
     }
 
-    return true;
+    return $args;
 }
 
 // Hook: admin_user_groups_edit_commit
